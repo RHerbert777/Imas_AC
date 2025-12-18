@@ -28,22 +28,23 @@
 /* Estrutura do Processador */
 typedef struct {
     // Unidade de Controle
-    uint16_t pc;    // Program Counter
-    uint16_t mar;   // Memory Address Register
-    uint16_t ibr;   // Instruction Buffer Register
-    uint16_t ir;    // Instruction Register
+    uint16_t pc;    // Program Counter - Endereço da proxima instrução.
+    uint16_t mar;   // Memory Address Register - Endereço a ser acesado pela memoria. 
+    uint16_t ibr;   // Instruction Buffer Register - Mantem toda a instrução.
+    uint16_t ir;    // Instruction Register - Mantem o opcode da instrução.
 
     // Unidade Lógica e Aritmética
-    int16_t mbr;    // Memory Buffer Register
-    int16_t ac;     // Accumulator
-    int16_t mq;     // Multiplier Quotient
+    int16_t mbr;    // Memory Buffer Register - Dado a ser lido/escrito na memoria.
+    int16_t ac;     // Accumulator - acm.
+    int16_t mq;     // Multiplier Quotient - usado na multiplicação e divisão.
 
     // Memória
     uint16_t memory[IMAS_MEM_SIZE];
 } imas_t;
 
-/* Protótipos das Funções */
+//Recebe a estrutura e inicializa os estados dos registradores zerados.
 void imas_init(imas_t *imas);
+
 
 void memory_read(imas_t *imas);
 

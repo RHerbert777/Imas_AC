@@ -12,3 +12,4 @@ typedef enum {
     IMAS_ERR_INVALID_OPCODE,   /* Instrução não reconhecida pelo switch */
     IMAS_ERR_DIV_ZERO,         /* Tentativa de divisão por zero */
 } imas_status_t;
+
