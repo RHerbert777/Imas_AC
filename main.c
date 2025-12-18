@@ -1,72 +1,7 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-
-/* IMAS memory size (4K X 16) */
-#define IMAS_MEM_SIZE 		(4096)
-
-/* IMAS instructions */
-#define IMAS_HALT			(0x0) 	/* HALT 			| Stops processor */
-#define IMAS_LOAD_M			(0x1)	/* LOAD M(X) 		| AC <= MEMORY[X] */
-#define IMAS_LOAD_MQ		(0x2)	/* LOAD MQ 			| AC <= MQ */
-#define IMAS_LOAD_MQ_M		(0x3)	/* LOAD MQ, M(X)	| MQ <= MEMORY[X] */
-#define IMAS_STOR_M			(0x4)	/* STOR M(X) 		| MEMORY[X] <= AC */
-#define IMAS_STA_M			(0x5) 	/* STA M(X) 		| MEMORY[X](11:0) = AC */
-#define IMAS_ADD_M			(0x6)	/* ADD M(X) 		| AC <= AC + MEMORY[X] */
-#define IMAS_SUB_M			(0x7)	/* SUB M(X) 		| AC <= AC - MEMORY[X] */
-#define IMAS_MUL_M			(0x8)	/* MUL M(X) 		| AC(31:16):MQ(15:0) <= MQ * MEMORY[X] */
-#define IMAS_DIV_M			(0x9)	/* DIV M(X) 		| MQ <= AC / MEMORY[X], AC <= AC % MEMORY[X] */
-#define IMAS_JMP_M			(0xA)	/* JMP M(X) 		| PC = X */
-#define IMAS_JZ_M			(0xB) 	/* JZ M(X) 			| PC = (AC == 0) ? X : PC */
-#define IMAS_JNZ_M			(0xC) 	/* JNZ M(X) 		| PC = (AC != 0) ? X : PC */
-#define IMAS_JPOS_M			(0xD) 	/* JPOS M(X) 		| PC = (AC >= 0) ? X : PC */
-#define IMAS_IN				(0xE) 	/* IN 				| AC <= IO */
-#define IMAS_OUT			(0xF) 	/* OUT 				| IO <= AC */
-
-/* IMAS registers and memory definitions */
-typedef struct imas_t {
-	/* UC */
-	uint16_t pc;	/* Program Counter */
-	uint16_t mar;	/* Memory Address Register */
-	uint16_t ibr;	/* Instruction Buffer Register */
-	uint16_t ir;	/* Instruction Register */
-
-	/* ULA */
-	int16_t mbr;	/* Memory Buffer Register */
-	int16_t ac;		/* Accumulator */
-	int16_t mq;		/* Multiplier Quocient */
-
-	/* MEMORY */
-	uint16_t memory[IMAS_MEM_SIZE];
-} imas_t;
-
-/* Executes a read from memory */
-void memory_read(imas_t *imas) {
-	// TODO
-}
-
-/* Executes a write into memory */
-void memory_write(imas_t *imas, bool modify_address) {
-	if(modify_address) {
-		// TODO: Write only operand address field
-	}
-	else {
-		// TODO
-	}
-}
-
-/* Reads an integer from user */
-void io_read(imas_t *imas) {
-	printf("IN => "); 
-	// TODO: scanf("%hd", &<?>); 
-}
-
-/* Outputs an integer to user */
-void io_write(imas_t *imas) {
-	// TODO: printf("OUT => %hd\n", <?>); 
-}
+#include "Imas.h"
 
 int main(int argc, char *argv[]) {
 	/* Check arguments */

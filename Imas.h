@@ -44,10 +44,15 @@ typedef struct {
 
 /* Protótipos das Funções */
 void imas_init(imas_t *imas);
+
 void memory_read(imas_t *imas);
+
 void memory_write(imas_t *imas, bool modify_address);
+
 void io_read(imas_t *imas);
+
 void io_write(imas_t *imas);
+
 void step(imas_t *imas); // Executa um ciclo de instrução
 
 #endif
