@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
 #define IMAS_MEM_SIZE 4096
 
 /* Opcodes do IMAS */
@@ -39,7 +38,7 @@ typedef struct {
     int16_t mq;     // Multiplier Quotient - usado na multiplicação e divisão.
 
     // Memória
-    uint16_t memory[IMAS_MEM_SIZE];
+    uint16_t memory[IMAS_MEM_SIZE]; //Memoria Total
 } imas_t;
 
 //Recebe a estrutura e inicializa os estados dos registradores zerados.
@@ -56,7 +55,16 @@ void imas_init(imas_t *imas){
     memset(imas->memory, 0, IMAS_MEM_SIZE * sizeof(uint16_t));
 }
 
-void memory_read(imas_t *imas);
+//pega o endereço na istrução ibr
+//coloca no MAR
+//traz o dado da memoria para o MBR
+void memory_read(imas_t *imas){
+	//0x0FFF mascara necesaria para evitar que o procesador pegue informação 
+	//do opcode que pegue somente o endereço
+	imas->mar = imas->ibr & 0x0FFF;
+
+	imas->mbr = imas->memory[imas->mar];
+}
 
 void memory_write(imas_t *imas, bool modify_address);
 
@@ -101,39 +109,39 @@ int main(int argc, char *argv[]) {
 
 
 	/* Processor running */
-	//Enquanto falso faça
-	bool imas_halt = false;
+	
+	bool imas_halt = false;//Enquanto falso faça
 	do {
 		/* PC before modifications */
 		uint16_t original_pc = imas.pc;
 
-		/* Fetch subcycle */
-		// TODO: Fetch instruction from memory (like in IAS)
-
-		/* Decode subcycle */
-		// TODO: Put instruction fields in registers
-
-		/* Execute subcycle */
 		switch(imas.ir) {
-		case IMAS_HALT:
-			// TODO
-			break;
-		case IMAS_LOAD_M:
-			// TODO
-			break;
-		case IMAS_LOAD_MQ:
-			// TODO
-			break;
-		case IMAS_LOAD_MQ_M:
-			// TODO
-			break;
-		case IMAS_STOR_M:
-			// TODO
-			break;
+		case IMAS_HALT: //Atualiza o estado da cpu
+			imas_halt = true;
+		break;
+		case IMAS_LOAD_M://Load from Memory to Accumulator.
+			// 1. O barramento busca o dado na memória e coloca no MBR
+    		memory_read(&imas); 
+    
+    		// 2. A CPU pega do MBR e guarda no Acumulador
+    		imas.ac = imas.mbr;
+    	break;
+		case IMAS_LOAD_MQ: //Load MQ to Accumulator.
+			
+			imas.ac = imas.mq;
+		break;
+		case IMAS_LOAD_MQ_M://Load from Memory to MQ.
+			memory_read(&imas);
+			
+			imas.mq = imas.mbr;
+		break;
+		case IMAS_STOR_M: //Store to Memory
+			
+		break;
 		case IMAS_STA_M:
 			// TODO
 			break;
-		case IMAS_ADD_M:
+		case IMAS_ADD_M: //Pega acm soma o que esta na memoria e quarda acm
 			// TODO
 			break;
 		case IMAS_SUB_M:
@@ -145,26 +153,26 @@ int main(int argc, char *argv[]) {
 		case IMAS_DIV_M:
 			// TODO
 			break;
-		case IMAS_JMP_M:
+		case IMAS_JMP_M: //Vá para endereço M
 			// TODO
 			break;
-		case IMAS_JZ_M:
+		case IMAS_JZ_M://if ac == 0 pula para endereço M else ignora
 			// TODO
 			break;
-		case IMAS_JNZ_M:
+		case IMAS_JNZ_M:// oposto do IMA_JZ_M
 			// TODO
 			break;
-		case IMAS_JPOS_M:
+		case IMAS_JPOS_M://if AC >= 0 pula para M
 			// TODO
 			break;
-		case IMAS_IN:
+		case IMAS_IN: //Pede um numero ao usuario e armazena em acm
 			// TODO
 			break;
-		case IMAS_OUT:
+		case IMAS_OUT: //printa o valor atual de AC
 			// TODO
 			io_write(&imas);
 			break;
-		default:
+		default: //Se tudo der errado encere o programa
 			printf("Invalid instruction %04X!\n", imas.ibr);
 			imas_halt = true;
 			break;
