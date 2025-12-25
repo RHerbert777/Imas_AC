@@ -248,9 +248,7 @@ int main(int argc, char *argv[]) {
 		imas.memory[address] = buffer;
     }
 
-
 	/* Processor running */
-	
 	bool imas_halt = false;//Enquanto falso faça
 	
 	do {
