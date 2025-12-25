@@ -117,9 +117,103 @@ void io_write(imas_t *imas){
 	printf("IMAS Output >> %d\n", resultado);
 }
 
-void step(imas_t *imas){// Executa um ciclo de instrução
+bool step(imas_t *imas) {
+    /* ================= FETCH ================= */ //
 
-} 
+    // 1. PC -> MAR
+    imas->mar = imas->pc;
+
+    // 2. Memória -> MBR
+    imas->mbr = imas->memory[imas->mar];
+
+    // 3. MBR -> IBR (instrução completa)
+    imas->ibr = imas->mbr;
+
+    // 4. Decodificação
+    imas->ir = (imas->ibr >> 12) & 0x000F; // opcode (4 bits mais significativos)
+
+    // 5. Incrementa PC
+    imas->pc++;
+
+    /* ================= EXECUTE ================= */
+
+    switch(imas->ir) {
+
+    case IMAS_HALT: // Atualiza o estado da cpu
+        return false;
+
+    case IMAS_LOAD_M: // Load from Memory to Accumulator.
+        // 1. O barramento busca o dado na memória e coloca no MBR
+        memory_read(imas);
+
+        // 2. A CPU pega do MBR e guarda no Acumulador
+        imas->ac = imas->mbr;
+        break;
+
+    case IMAS_LOAD_MQ: // Load MQ to Accumulator.
+        imas->ac = imas->mq;
+        break;
+
+    case IMAS_LOAD_MQ_M: // Load from Memory to MQ.
+        memory_read(imas);
+        imas->mq = imas->mbr;
+        break;
+
+    case IMAS_STOR_M: // Store to Memory
+        // TODO
+        break;
+
+    case IMAS_STA_M:
+        // TODO
+        break;
+
+    case IMAS_ADD_M: // Pega acm soma o que esta na memoria e quarda acm
+        // TODO
+        break;
+
+    case IMAS_SUB_M:
+        // TODO
+        break;
+
+    case IMAS_MUL_M:
+        // TODO
+        break;
+
+    case IMAS_DIV_M:
+        // TODO
+        break;
+
+    case IMAS_JMP_M: // Vá para endereço M
+        // TODO
+        break;
+
+    case IMAS_JZ_M: // if ac == 0 pula para endereço M else ignora
+        // TODO
+        break;
+
+    case IMAS_JNZ_M: // oposto do IMAS_JZ_M
+        // TODO
+        break;
+
+    case IMAS_JPOS_M: // if AC >= 0 pula para M
+        // TODO
+        break;
+
+    case IMAS_IN: // Pede um numero ao usuario e armazena em acm
+        // TODO
+        break;
+
+    case IMAS_OUT: // printa o valor atual de AC
+        io_write(imas);
+        break;
+
+    default: // Se tudo der errado encerre o programa
+        printf("Invalid instruction %04X!\n", imas->ibr);
+        return false;
+    }
+
+    return true;
+}
 
 int main(int argc, char *argv[]) {
 	/* Check arguments */
@@ -158,72 +252,12 @@ int main(int argc, char *argv[]) {
 	/* Processor running */
 	
 	bool imas_halt = false;//Enquanto falso faça
+	
 	do {
 		/* PC before modifications */
 		uint16_t original_pc = imas.pc;
 
-		switch(imas.ir) {
-		case IMAS_HALT: //Atualiza o estado da cpu
-			imas_halt = true;
-		break;
-		case IMAS_LOAD_M://Load from Memory to Accumulator.
-			// 1. O barramento busca o dado na memória e coloca no MBR
-    		memory_read(&imas); 
-    
-    		// 2. A CPU pega do MBR e guarda no Acumulador
-    		imas.ac = imas.mbr;
-    	break;
-		case IMAS_LOAD_MQ: //Load MQ to Accumulator.
-			
-			imas.ac = imas.mq;
-		break;
-		case IMAS_LOAD_MQ_M://Load from Memory to MQ.
-			memory_read(&imas);
-			
-			imas.mq = imas.mbr;
-		break;
-		case IMAS_STOR_M: //Store to Memory
-			
-		break;
-		case IMAS_STA_M:
-			// TODO
-			break;
-		case IMAS_ADD_M: //Pega acm soma o que esta na memoria e quarda acm
-			// TODO
-			break;
-		case IMAS_SUB_M:
-			// TODO
-			break;
-		case IMAS_MUL_M:
-			// TODO
-			break;
-		case IMAS_DIV_M:
-			// TODO
-			break;
-		case IMAS_JMP_M: //Vá para endereço M
-			// TODO
-			break;
-		case IMAS_JZ_M://if ac == 0 pula para endereço M else ignora
-			// TODO
-			break;
-		case IMAS_JNZ_M:// oposto do IMA_JZ_M
-			// TODO
-			break;
-		case IMAS_JPOS_M://if AC >= 0 pula para M
-			// TODO
-			break;
-		case IMAS_IN: //Pede um numero ao usuario e armazena em acm
-			// TODO
-			break;
-		case IMAS_OUT: //printa o valor atual de AC
-			// TODO
-			io_write(&imas);
-			break;
-		default: //Se tudo der errado encere o programa
-			printf("Invalid instruction %04X!\n", imas.ibr);
-			imas_halt = true;
-			break;
-		}
+		imas_halt = !step(&imas); //atribui o processo dos ciclos a função 
 
 		/* Breakpoint subcycle */
 		if(breakpoints[original_pc]) {
