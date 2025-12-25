@@ -66,13 +66,60 @@ void memory_read(imas_t *imas){
 	imas->mbr = imas->memory[imas->mar];
 }
 
-void memory_write(imas_t *imas, bool modify_address);
+//pega o endereço na istrução ibr
+//coloca no MAR
+//escreve o dado do MBR na memoria
+//caso onde queremos subistituir tudo da memoria e substituir apenas o endereço
+void memory_write(imas_t *imas, bool modify_address){
+	imas->mar = imas->ibr & 0x0FFF;
 
-void io_read(imas_t *imas);
+	if (modify_address){
+		uint16_t atual = imas->memory[imas->mar]; //atual
+		
+		uint16_t opcode_preservado = atual & 0xF000; //preservo a instrução
 
-void io_write(imas_t *imas);
+		uint16_t novo_endereco = imas->mbr & 0x0FFF; //removo a nova instrução 
 
-void step(imas_t *imas); // Executa um ciclo de instrução
+		imas->memory[imas->mar] = opcode_preservado | novo_endereco;//junto tudo
+
+	}else{
+		imas->memory[imas->mar] = imas->mbr;
+	}
+}
+//entrada permite o usuario digitar
+//scanf e salva no acumulador
+void io_read(imas_t *imas){
+	printf("IMAS Input > ");
+
+	int temp;
+
+	if(scanf(" %d",&temp) == 1){ //verifica se foi numero
+		if (temp > 32767){
+			printf("[AVISO] Valor %d muito alto! Truncado para 32767.\n", temp);
+			imas->ac = 32767;
+		}else if(temp < -32767){
+			printf("[AVISO] Valor %d muito baixo! Truncado para -32767.\n", temp);
+			imas->ac = -32767;
+		}else{
+			imas->ac = temp; 
+		}
+	}else{ //se for algo diferente de numero
+		printf("[ERRO] Entrada invalida! AC zerado.\n");
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF); // Limpa buffer
+        imas->ac = 0;
+	}
+}
+//saida permite o usuario visualizar o que tem no AC
+//printa na tela o AC
+void io_write(imas_t *imas){
+	int16_t resultado = imas->ac;
+	printf("IMAS Output >> %d\n", resultado);
+}
+
+void step(imas_t *imas){// Executa um ciclo de instrução
+
+} 
 
 int main(int argc, char *argv[]) {
 	/* Check arguments */
